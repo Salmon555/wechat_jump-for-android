@@ -1,0 +1,83 @@
+import os
+import image
+from PIL import ImageGrab
+##自身横向占17个像素
+time=50 #跳的时间
+distance=100 #自身和目标的距离
+flag=0 #标志
+
+myselfx=0
+myselfy=0 #自身坐标
+targetx=0
+targetyup=0 
+targetydown=0 #目标坐标
+
+bbox = (427, 246, 427+248,246+440)   #全屏后固定屏幕位置
+img = ImageGrab.grab(bbox)
+img.save("pixel.png")#存储截图
+#img.show()
+#background=[214,200,241] #测试后的青色背景RGB值
+myself=[62,49,84]        #测试后的自身RGB值（误差在5以内）
+
+shade=[]
+pixx=122# x 0-247
+pixy=132# y 0-439
+
+pixel=img.getpixel((pixx,pixy))
+#print(pixel)
+background=img.getpixel((120,130))
+
+for y in range(110,439):
+	for x in range(0,247):
+		temp=img.getpixel((x,y))
+		if abs(temp[0]-62)<5 and abs(temp[1]-49)<5 and abs(temp[2]-84)<5:
+			myselfy=y
+			myselfx=x-4   #得到自身x y坐标
+
+while(flag!=1):
+	for y in range(110,420):
+		if(flag==1):
+			break
+		for x in range(10,230):
+			if(flag==1):
+				break
+			temp1=img.getpixel((x,y))
+			#print(temp1[0],temp1[1],temp1[2])
+			if abs(temp1[0]-background[0])>30 or abs(temp1[1]-background[1])>30 or abs(temp1[2]-background[2])>30:
+				targetx=x
+				targetyup=y  #上坐标确定
+				flag=1
+				break
+
+
+
+
+#print(targetx)
+#print(targetyup)
+
+bbox=(427+targetx-8,246+targetyup-20,427+targetx+8,246+targetyup+20)#24 39
+imgimg=ImageGrab.grab(bbox)
+#imgimg.show()
+pixx=12
+pixy=32         #抓某块区域,测试目标抓的准不准
+
+#print(myselfy)
+#print(myselfx)
+
+bbox=(427+myselfx-8,246+myselfy-20,427+myselfx+8,246+myselfy+20)#24 39
+imgimg=ImageGrab.grab(bbox)
+#imgimg.show()
+pixx=12
+pixy=32         #抓某块区域,测试自身抓的准不准
+
+
+distance=abs(targetx-myselfx)
+print(distance)
+
+#pixel=imgimg.getpixel((pixx,pixy))
+#print(pixel)
+time=distance*7.13 #距离和时间成正比
+time=round(time)
+cmd= 'adb shell input swipe 100 100 200 300 '+ str(time)
+print(cmd)
+os.system(cmd)
